@@ -32,6 +32,7 @@ motor triggerM = motor(vex::PORT13, vex::gearSetting::ratio18_1, false);
 /**
 0 is close, 1 is open 
 **/
+pneumatics x = pneumatics(Brain.ThreeWirePort.B);
 
 void vexcodeInit(void) {
 }

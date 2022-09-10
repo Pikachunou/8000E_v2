@@ -17,6 +17,8 @@ extern motor intake1;
 extern motor intake2;
 extern motor triggerM;
 
+extern pneumatics x;
+
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
  *

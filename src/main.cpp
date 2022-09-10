@@ -1,19 +1,20 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
-/*    Author:       Peter Voong and greydon ting                              */
+/*    Author:       Peter Voong and                                           */
 /*    Created:      Fri Dec 3 2021                                            */
 /*    Description:  8000E V2 - Pre-Tournament Code                            */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
+// make sure to make the piston start extended
 #include "math.h"
 #include "vex.h"
 
 using namespace vex;
 
 //-------------------------------------------------------variables and
-//helpers---------------------------------------------------------------------------------
+// helpers---------------------------------------------------------------------------------
 
 // Middle of wheel to middle of wheel
 const double CHASSIS_WIDTH = 15;
@@ -33,7 +34,7 @@ const double LEFT_SENS = 1;
 const double RIGHT_SENS = 1;
 
 //-------------------------------conversion
-//methods-------------------------------------------------------------------------------
+// methods-------------------------------------------------------------------------------
 double inchToRotation(double inches) {
 
   double temp = (inches / (wheelCircumference));
@@ -46,7 +47,7 @@ double degreesToRadians(double degrees) {
 }
 
 //-------------------------------chassis
-//methods-------------------------------------------------------------------------------
+// methods-------------------------------------------------------------------------------
 
 void leftDrive(vex::directionType type, int percentage) {
   chassisLF.spin(type, percentage, velocityUnits::pct);
@@ -122,6 +123,8 @@ void turn(double degrees, int velocity) {
                       velocityUnits::pct, true);
 }
 
+
+
 //-------------------------------auton----------------------------------------------------------------------------------
 
 // PID Methods:
@@ -181,8 +184,107 @@ double Limit(double val, double min, double max) {
   }
 }
 
+void piston() { //single acting piston
+  if(x.value()){
+    x.close();
+  } else{
+    x.open();
+  }}
+
+//-------------------------------------------------------buttons---------------------------------------------------------------------------------
+
+void upPressed() {}
+
+void downPressed() {}
+void leftPressed() {} 
+
+void rightPressed() {}
+
+void xPressed() {
+   piston(); // test piston 
+}
+
+void yPressed() { // go up
+  intake1.setVelocity(100, velocityUnits::pct);
+  intake2.setVelocity(100, velocityUnits::pct);
+}
+
+// void xPressed() {
+
+// }
+
+// void yPressed() {
+
+// }
+
+void aPressed() { // go down further
+  intake1.setVelocity(100, velocityUnits::pct);
+  intake2.setVelocity(100, velocityUnits::pct);
+}
+
+void bPressed() { // go down
+  intake1.setVelocity(100, velocityUnits::pct);
+  intake2.setVelocity(100, velocityUnits::pct);
+}
+
+void chassisControl() {
+  int axis3 = Controller1.Axis3.position();
+  int axis2 = Controller1.Axis2.position();
+
+  leftDrive(vex::directionType::fwd, axis3);
+  rightDrive(vex::directionType::fwd, axis2);
+}
+
+void trigger() {
+  triggerM.setStopping(hold);
+  triggerM.spinToPosition(25, deg, 100, velocityUnits::pct, true);
+  wait(500, msec);
+  triggerM.spinToPosition(0, deg, 100, velocityUnits::pct, false);
+}
+
+// void flywheelStart(int power) {
+//     // flywheel.setVelocity(600, velocityUnits::rpm);
+//     flywheel1.spin(fwd, power, velocityUnits::pct);
+//     flywheel2.spin(fwd, power, velocityUnits::pct);
+// }
+
+void flywheelStart() {
+  // flywheel.setVelocity(600, velocityUnits::rpm);
+  flywheel1.spin(fwd, 100, velocityUnits::pct);
+  flywheel2.spin(fwd, 100, velocityUnits::pct);
+}
+
+void flywheelStop() {
+  // flywheel.setBrake(coast);
+  flywheel1.stop(coast);
+  flywheel2.stop(coast);
+}
+
+void intakeStart() {
+  intake1.spin(fwd, 100, velocityUnits::pct);
+  intake2.spin(fwd, 100, velocityUnits::pct);
+}
+
+void intakeStop() {
+  intake1.stop(coast);
+  intake2.stop(coast);
+}
+
+void outtakeStart() {
+  intake1.spin(reverse, 100, velocityUnits::pct);
+  intake2.spin(reverse, 100, velocityUnits::pct);
+}
+
+int intake(void) {
+  task::sleep(100);
+  intakeStart();
+  task::sleep(300);
+  intakeStop();
+  return 0;
+}
+
 //------------------------------------PID Control Move and
-//Turn----------------------------------------
+// Turn----------------------------------------
 
 void setChassisLSmooth(int speed) {
   double inertia = 0.97; // was 0.5
@@ -198,7 +300,7 @@ void setChassisRSmooth(int speed) {
   rightSpin(currentSpeed);
 }
 
-double kP = 1;  // was 1
+double kP = 1;   // was 1
 double kD = 0.4; // was 1 , 0.5
 
 void chassisPIDMoveMax(double inches, double maxSpeed) {
@@ -274,8 +376,7 @@ void chassisPIDMove(double inches) {
   double degrees = revolutions * 360; // How many degrees the wheels need to
                                       // turn
 
-  // double mtrDegrees = (degrees * 6) / 5;//How many degrees the motors need to
-  // spin
+  // double mtrDegrees = (degrees * 6) / 5;//How many degrees the motors need to spin
 
   chassisLF.resetRotation();
   chassisRF.resetRotation();
@@ -333,149 +434,55 @@ void chassisPIDMove(double inches) {
   rightSpin(0);
 }
 
-//-------------------------------------------------------buttons---------------------------------------------------------------------------------
-
-void upPressed() {
-
-}
-
-void downPressed() {}
-void leftPressed() {}
-
-void rightPressed() {}
-
-void xPressed() { // go down
-}
-
-void yPressed() { // go up
-  intake1.setVelocity(100, velocityUnits::pct);
-  intake2.setVelocity(100, velocityUnits::pct);
-}
-
-// void xPressed() {
-
-// }
-
-// void yPressed() {
-
-// }
-
-void aPressed() { // go down further
-  intake1.setVelocity(100, velocityUnits::pct);
-  intake2.setVelocity(100, velocityUnits::pct);
-}
-
-void bPressed() { // go down
-  intake1.setVelocity(100, velocityUnits::pct);
-  intake2.setVelocity(100, velocityUnits::pct);
-}
-
-void chassisControl() {
-  int axis3 = Controller1.Axis3.position();
-  int axis2 = Controller1.Axis2.position();
-
-  leftDrive(vex::directionType::fwd, axis3);
-  rightDrive(vex::directionType::fwd, axis2);
-}
-
-void trigger() {
-    triggerM.setStopping(hold);
-    triggerM.spinToPosition(25, deg, 100, velocityUnits::pct, true);
-    wait(500, msec);
-    triggerM.spinToPosition(0, deg, 100, velocityUnits::pct, false);
-}
-
-// void flywheelStart(int power) {
-//     // flywheel.setVelocity(600, velocityUnits::rpm);
-//     flywheel1.spin(fwd, power, velocityUnits::pct);
-//     flywheel2.spin(fwd, power, velocityUnits::pct);
-// }
-
-void flywheelStart() {
-    // flywheel.setVelocity(600, velocityUnits::rpm);
-    flywheel1.spin(fwd, 100, velocityUnits::pct);
-    flywheel2.spin(fwd, 100, velocityUnits::pct);
-}
-
-
-void flywheelStop() {
-    // flywheel.setBrake(coast);
-    flywheel1.stop(coast);
-    flywheel2.stop(coast);
-}
-
-void intakeStart() {
-   intake1.spin(fwd, 100, velocityUnits::pct); 
-   intake2.spin(fwd, 100, velocityUnits::pct);
-}
-
-void intakeStop() {
-   intake1.stop(coast);
-   intake2.stop(coast);
-}
-
-void outtakeStart() {
-   intake1.spin(reverse, 100, velocityUnits::pct);
-   intake2.spin(reverse, 100, velocityUnits::pct);
-}
-
-
-int intake(void){
-  task::sleep(100);
-  intakeStart();
-  task::sleep(300);
-  intakeStop();
-  return 0;
-}
-
-
 // Auton Methods
-void Auton1(void) {
-   task i = task(intake); //intake that will be used later
-  //spin roller (code is not set up yet)
-  turn(75, 100); // turn to goal
-  flywheel1.setVelocity(400, velocityUnits::rpm); //set velocity of both flywheel motors
-  flywheel2.setVelocity(400, velocityUnits::rpm);
-  flywheelStart(); //shoot
+
+
+void AWP(void) {
+  task i = task(intake); // intake that will be used later
+  flywheelStart();       // spin roller (idk what the commmand is for this)
   vex::task::sleep(250);
-  turn(45, 100); // turn to the where the disks are set
-  i.resume(); //intake while driving
-  chassisPIDMove(136); //drive across line
+  flywheelStop();
+  turn(75, 100); // turn to goal
+  flywheel1.setVelocity(400, velocityUnits::rpm); // set velocity of both flywheel motors
+  flywheel2.setVelocity(400, velocityUnits::rpm);
+  flywheelStart(); // shoot
+  vex::task::sleep(250);
+  turn(45, 100);       // turn to the where the disks are set
+  i.resume();          // intake while driving
+  chassisPIDMove(136); // drive across line
   turn(-90, 100);
   chassisPIDMove(-4);
-  // spin roller
+  flywheelStart(); // spin roller (idk what the commmand is for this)
+  vex::task::sleep(250);
+  flywheelStop();
 }
 
 void autonomous(void) { 
-  Auton1();
+  AWP(); 
 }
-
-
 
 //-------------------------------------------------------callbacks---------------------------------------------------------------------------------
 
 void usercontrol(void) {
   setChassisBrakeType(coast);
 
-  //flywheel
+  // flywheel
   Controller1.ButtonL1.pressed(*flywheelStart);
 
   // if(Controller1.ButtonL1.pressing()){flywheelStart;}
   Controller1.ButtonL1.released(*flywheelStop);
 
-  //trigger
+  // trigger
   Controller1.ButtonL2.pressed(*trigger);
 
-  //intake
+  // intake
   Controller1.ButtonR1.pressed(*intakeStart);
   Controller1.ButtonR1.released(*intakeStop);
 
-  //outtake
+  // outtake
   Controller1.ButtonR2.pressed(*outtakeStart);
   Controller1.ButtonR2.released(*intakeStop);
 
- 
-  
   Controller1.ButtonUp.pressed(*upPressed);
   Controller1.ButtonDown.pressed(*downPressed);
   Controller1.ButtonLeft.pressed(*leftPressed);
@@ -489,20 +496,20 @@ void usercontrol(void) {
 
   // game tick
   while (1) {
-//     if (Controller1.ButtonY.pressing()) {
-//       liftL.spin(vex::directionType::fwd, 50, vex::velocityUnits::pct);
-//       liftR.spin(vex::directionType::fwd, 50, vex::velocityUnits::pct );
-//     }
-//      if (Controller1.ButtonX.pressing()) {
-//       liftL.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);
-//       liftR.spin(vex::directionType::fwd, 50, vex::velocityUnits::pct );
-    
-//     }
+    //     if (Controller1.ButtonY.pressing()) {
+    //       liftL.spin(vex::directionType::fwd, 50, vex::velocityUnits::pct);
+    //       liftR.spin(vex::directionType::fwd, 50, vex::velocityUnits::pct );
+    //     }
+    //      if (Controller1.ButtonX.pressing()) {
+    //       liftL.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);
+    //       liftR.spin(vex::directionType::fwd, 50, vex::velocityUnits::pct );
 
-// else {
-//   liftL.stop(vex::brakeType::hold);
-//   liftR.stop(vex::brakeType::hold);
-// }
+    //     }
+
+    // else {
+    //   liftL.stop(vex::brakeType::hold);
+    //   liftR.stop(vex::brakeType::hold);
+    // }
 
     vex::task::sleep(20); // DO NOT DELETE -- Sleep the task for a short amount
                           // of time to prevent wasted resources.
@@ -514,7 +521,7 @@ void usercontrol(void) {
 int main() {
   vexcodeInit();
   triggerM.setTimeout(0.2, timeUnits::sec);
-  //triggerM.spinToPosition(double rotation, rotationUnits units);
+  // triggerM.spinToPosition(double rotation, rotationUnits units);
   triggerM.setTimeout(1, timeUnits::sec);
   // gyroSensor.startCalibration(1500);
   Competition.drivercontrol(usercontrol);
